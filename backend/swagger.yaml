@@ -1,0 +1,905 @@
+openapi: 3.0.3
+info:
+  title: ChatGPT Clone API
+  description: Backend API for ChatGPT Clone with AI integration, file uploads, and real-time chat
+  version: 1.0.0
+  contact:
+    name: Galaxy Assignment
+    email: support@galaxy-assignment.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3001
+    description: Local server
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Clerk JWT token
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "64f8d123abc456def789"
+        clerkId:
+          type: string
+          example: "user_2abc123def456"
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        firstName:
+          type: string
+          example: "John"
+        lastName:
+          type: string
+          example: "Doe"
+        avatar:
+          type: string
+          format: uri
+          example: "https://images.clerk.dev/avatar.jpg"
+        preferences:
+          type: object
+          properties:
+            model:
+              type: string
+              example: "gpt-3.5-turbo"
+            theme:
+              type: string
+              example: "light"
+        subscription:
+          type: string
+          enum: [free, pro, enterprise]
+          example: "free"
+        usage:
+          type: object
+          properties:
+            messagesCount:
+              type: integer
+              example: 150
+            filesUploaded:
+              type: integer
+              example: 5
+            lastActive:
+              type: string
+              format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    Conversation:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "64f8d123abc456def789"
+        userId:
+          type: string
+          example: "64f8d123abc456def789"
+        title:
+          type: string
+          example: "My Chat Conversation"
+        model:
+          type: string
+          example: "gpt-3.5-turbo"
+        systemPrompt:
+          type: string
+          example: "You are a helpful assistant"
+        metadata:
+          type: object
+          properties:
+            messageCount:
+              type: integer
+              example: 10
+            tokenCount:
+              type: integer
+              example: 1500
+            lastActivity:
+              type: string
+              format: date-time
+        isArchived:
+          type: boolean
+          example: false
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "64f8d123abc456def789"
+        conversationId:
+          type: string
+          example: "64f8d123abc456def789"
+        role:
+          type: string
+          enum: [user, assistant, system]
+          example: "user"
+        content:
+          type: string
+          example: "Hello, how are you?"
+        files:
+          type: array
+          items:
+            type: string
+          example: ["64f8d123abc456def789"]
+        metadata:
+          type: object
+          properties:
+            model:
+              type: string
+              example: "gpt-3.5-turbo"
+            tokenCount:
+              type: integer
+              example: 25
+            responseTime:
+              type: integer
+              example: 1200
+            temperature:
+              type: number
+              example: 0.7
+        editHistory:
+          type: array
+          items:
+            type: object
+            properties:
+              content:
+                type: string
+              editedAt:
+                type: string
+                format: date-time
+        isEdited:
+          type: boolean
+          example: false
+        parentMessage:
+          type: string
+          example: "64f8d123abc456def789"
+        createdAt:
+          type: string
+          format: date-time
+
+    File:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "64f8d123abc456def789"
+        userId:
+          type: string
+          example: "64f8d123abc456def789"
+        originalName:
+          type: string
+          example: "document.pdf"
+        filename:
+          type: string
+          example: "1634567890_document.pdf"
+        cloudinaryId:
+          type: string
+          example: "chatgpt-clone/64f8d123abc456def789"
+        url:
+          type: string
+          format: uri
+          example: "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+        mimeType:
+          type: string
+          example: "application/pdf"
+        size:
+          type: integer
+          example: 1024000
+        metadata:
+          type: object
+          properties:
+            width:
+              type: integer
+              example: 1920
+            height:
+              type: integer
+              example: 1080
+            pages:
+              type: integer
+              example: 10
+            extractedText:
+              type: string
+        status:
+          type: string
+          enum: [uploading, processing, ready, error]
+          example: "ready"
+        createdAt:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Validation Error"
+        message:
+          type: string
+          example: "Invalid input provided"
+        details:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 100
+        pages:
+          type: integer
+          example: 5
+
+paths:
+  /:
+    get:
+      summary: API Root
+      description: Get basic API information and available endpoints
+      tags:
+        - General
+      security: []
+      responses:
+        '200':
+          description: API information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "ChatGPT Clone API"
+                  version:
+                    type: string
+                    example: "1.0.0"
+                  status:
+                    type: string
+                    example: "running"
+                  endpoints:
+                    type: object
+
+  # Health Check Endpoints
+  /api/health:
+    get:
+      summary: Basic Health Check
+      description: Check if the API is running
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  timestamp:
+                    type: string
+                    format: date-time
+                  uptime:
+                    type: number
+                    example: 3600
+
+  /api/health/db:
+    get:
+      summary: Database Health Check
+      description: Check database connectivity
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: Database is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  database:
+                    type: string
+                    example: "connected"
+                  responseTime:
+                    type: integer
+                    example: 50
+        '503':
+          description: Database is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/health/ai:
+    get:
+      summary: AI Service Health Check
+      description: Check AI service availability
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: AI service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  service:
+                    type: string
+                    example: "openai"
+                  responseTime:
+                    type: integer
+                    example: 200
+                  models:
+                    type: array
+                    items:
+                      type: string
+                    example: ["gpt-3.5-turbo", "gpt-4"]
+
+  # Authentication Endpoints
+  /api/auth/verify:
+    post:
+      summary: Verify Authentication Token
+      description: Verify JWT token and get/create user information
+      tags:
+        - Authentication
+      responses:
+        '200':
+          description: Token verified successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  valid:
+                    type: boolean
+                    example: true
+        '401':
+          description: Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/refresh:
+    post:
+      summary: Refresh User Data
+      description: Sync user data from Clerk to local database
+      tags:
+        - Authentication
+      responses:
+        '200':
+          description: User data refreshed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+
+  # Chat Endpoints
+  /api/chat/conversations:
+    get:
+      summary: Get User Conversations
+      description: Retrieve user's conversation list with pagination
+      tags:
+        - Chat
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+          description: Items per page
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search conversations by title
+      responses:
+        '200':
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conversations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Conversation'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+    post:
+      summary: Create New Conversation
+      description: Create a new conversation
+      tags:
+        - Chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "New Conversation"
+                model:
+                  type: string
+                  example: "gpt-3.5-turbo"
+                systemPrompt:
+                  type: string
+                  example: "You are a helpful assistant"
+      responses:
+        '201':
+          description: Conversation created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conversation'
+
+  /api/chat/conversations/{conversationId}:
+    get:
+      summary: Get Specific Conversation
+      description: Retrieve conversation details
+      tags:
+        - Chat
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Conversation ID
+      responses:
+        '200':
+          description: Conversation details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conversation'
+        '404':
+          description: Conversation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete Conversation
+      description: Delete a conversation and all its messages
+      tags:
+        - Chat
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Conversation ID
+      responses:
+        '200':
+          description: Conversation deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Conversation deleted successfully"
+
+  /api/chat/conversations/{conversationId}/messages:
+    get:
+      summary: Get Conversation Messages
+      description: Retrieve messages for a specific conversation
+      tags:
+        - Chat
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Conversation ID
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+          description: Messages per page
+      responses:
+        '200':
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+    post:
+      summary: Send Message
+      description: Send a message and receive AI response (streaming)
+      tags:
+        - Chat
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Conversation ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+              properties:
+                content:
+                  type: string
+                  example: "Hello, how are you?"
+                files:
+                  type: array
+                  items:
+                    type: string
+                  example: ["64f8d123abc456def789"]
+      responses:
+        '200':
+          description: Streaming AI response
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Hello! I'm doing well, thank you for asking..."
+
+  /api/chat/messages/{messageId}:
+    put:
+      summary: Edit Message
+      description: Edit a previously sent message
+      tags:
+        - Chat
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Message ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+              properties:
+                content:
+                  type: string
+                  example: "Updated message content"
+      responses:
+        '200':
+          description: Message updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+
+  /api/chat/messages/{messageId}/regenerate:
+    post:
+      summary: Regenerate AI Response
+      description: Regenerate AI response for a specific message
+      tags:
+        - Chat
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Message ID
+      responses:
+        '200':
+          description: Streaming regenerated response
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  # File Endpoints
+  /api/files:
+    get:
+      summary: Get User Files
+      description: Retrieve user's uploaded files
+      tags:
+        - Files
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+          description: Files per page
+      responses:
+        '200':
+          description: List of files
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  files:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/File'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /api/files/upload:
+    post:
+      summary: Upload File
+      description: Upload a file to Cloudinary storage
+      tags:
+        - Files
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: File to upload
+                metadata:
+                  type: string
+                  description: JSON string with additional metadata
+      responses:
+        '201':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '400':
+          description: Invalid file or file type not supported
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/files/{fileId}:
+    get:
+      summary: Get File Details
+      description: Retrieve file information
+      tags:
+        - Files
+      parameters:
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: File ID
+      responses:
+        '200':
+          description: File details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete File
+      description: Delete a file from storage
+      tags:
+        - Files
+      parameters:
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: File ID
+      responses:
+        '204':
+          description: File deleted successfully
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # User Endpoints
+  /api/users/profile:
+    get:
+      summary: Get User Profile
+      description: Retrieve current user's profile information
+      tags:
+        - Users
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: Update User Profile
+      description: Update user profile information
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                preferences:
+                  type: object
+                  properties:
+                    model:
+                      type: string
+                      example: "gpt-4"
+                    theme:
+                      type: string
+                      example: "dark"
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  preferences:
+                    type: object
+                  updatedAt:
+                    type: string
+                    format: date-time
+
+  /api/users/usage:
+    get:
+      summary: Get Usage Statistics
+      description: Retrieve user's usage statistics
+      tags:
+        - Users
+      responses:
+        '200':
+          description: Usage statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current:
+                    type: object
+                    properties:
+                      messagesCount:
+                        type: integer
+                        example: 100
+                      filesUploaded:
+                        type: integer
+                        example: 20
+                      tokensUsed:
+                        type: integer
+                        example: 50000
+                  limits:
+                    type: object
+                    properties:
+                      messagesPerMonth:
+                        type: integer
+                        example: 1000
+                      filesPerMonth:
+                        type: integer
+                        example: 100
+                      tokensPerMonth:
+                        type: integer
+                        example: 100000
+                  period:
+                    type: object
+                    properties:
+                      start:
+                        type: string
+                        format: date-time
+                      end:
+                        type: string
+                        format: date-time
+
+tags:
+  - name: General
+    description: General API information
+  - name: Health
+    description: Health check endpoints
+  - name: Authentication
+    description: User authentication and verification
+  - name: Chat
+    description: Chat conversations and messaging
+  - name: Files
+    description: File upload and management
+  - name: Users
+    description: User profile and settings 
