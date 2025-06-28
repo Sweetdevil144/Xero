@@ -2,7 +2,7 @@
 "use client";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+  process.env.NEXT_PUBLIC_API_URL || "https://xero-4jqd.onrender.com/api";
 
 class ApiClient {
   private async getAuthHeaders(): Promise<Record<string, string>> {
