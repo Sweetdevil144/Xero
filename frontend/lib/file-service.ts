@@ -1,7 +1,4 @@
-const API_BASE_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://your-backend-domain.com"
-    : "http://localhost:3001";
+const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://xero-4jqd.onrender.com";
 
 export interface UploadedFile {
   id: string;
