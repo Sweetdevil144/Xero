@@ -41,14 +41,11 @@ export default function MessageContent({ content, role }: MessageContentProps) {
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeHighlight, rehypeRaw]}
         components={{
-          // Custom code block component with copy button
           code({
-            node,
             className,
             children,
             ...props
           }: {
-            node?: any;
             className?: string;
             children?: React.ReactNode;
           }) {

@@ -6,7 +6,6 @@ import {
   Plus,
   MessageSquare,
   Trash2,
-  X,
   Brain,
   ChevronLeft,
   Sun,
@@ -101,6 +100,7 @@ export default function Sidebar({
     try {
       return date.toLocaleDateString();
     } catch (error) {
+      console.error("Error formatting date:", error);
       return `${date}`;
     }
   };

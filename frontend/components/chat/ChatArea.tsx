@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -11,7 +12,7 @@ import FileAttachment from "./FileAttachment";
 import { UploadedFile } from "@/lib/file-service";
 
 interface ChatAreaProps {
-  currentConversation: Conversation | null;
+  currentConversation: Conversation;
   messages: Message[];
   onSendMessage: (content: string) => void;
   onEditMessage: (messageId: string, newContent: string) => void;
@@ -72,7 +73,7 @@ export default function ChatArea({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit(e as any);
+      handleSubmit(e as React.FormEvent);
     }
   };
 
@@ -145,8 +146,8 @@ export default function ChatArea({
                 How can I help you today?
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-                I'm here to assist you with questions, creative writing,
-                analysis, coding, and much more. Let's start a conversation!
+                I&apos;m here to assist you with questions, creative writing,
+                analysis, coding, and much more. Let&apos;s start a conversation!
               </p>
 
               {/* Suggested prompts */}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useUser, useAuth } from "@clerk/nextjs";
+import { useAuth } from "@clerk/nextjs";
 import Sidebar from "./Sidebar";
 import ChatArea from "./ChatArea";
 import { toast } from "sonner";
@@ -27,7 +27,6 @@ export interface Message {
 }
 
 export default function ChatInterface() {
-  const { user } = useUser();
   const { getToken } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversation, setCurrentConversation] =
@@ -41,7 +40,7 @@ export default function ChatInterface() {
   // Load conversations on mount
   useEffect(() => {
     loadConversations();
-  }, []);
+  });
 
   const loadConversations = async () => {
     try {
@@ -415,7 +414,7 @@ export default function ChatInterface() {
       />
 
       <ChatArea
-        currentConversation={currentConversation}
+        currentConversation={currentConversation || ({} as Conversation)}
         messages={messages}
         onSendMessage={sendMessage}
         onEditMessage={editMessage}

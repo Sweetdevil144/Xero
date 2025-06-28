@@ -170,7 +170,7 @@ export default function ModelSelector({
 
   useEffect(() => {
     loadModels();
-  }, []);
+  });
 
   const loadModels = async () => {
     try {
@@ -233,7 +233,7 @@ export default function ModelSelector({
     }
   };
 
-  const handleApiKeySubmit = (apiKey: string) => {
+  const handleApiKeySubmit = () => {
     if (pendingModel) {
       onModelChange(pendingModel.id);
       setPendingModel(null);

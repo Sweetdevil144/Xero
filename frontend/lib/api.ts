@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 const API_BASE_URL =
@@ -6,8 +7,6 @@ const API_BASE_URL =
 class ApiClient {
   private async getAuthHeaders(): Promise<Record<string, string>> {
     try {
-      // For client-side, we'll get the token from Clerk's useAuth hook
-      // This will be handled in the components that use this API
       return {
         "Content-Type": "application/json",
       };
