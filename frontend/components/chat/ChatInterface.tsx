@@ -40,7 +40,7 @@ export default function ChatInterface() {
   // Load conversations on mount
   useEffect(() => {
     loadConversations();
-  });
+  }, []);
 
   const loadConversations = async () => {
     try {

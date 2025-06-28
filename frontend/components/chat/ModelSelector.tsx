@@ -170,7 +170,7 @@ export default function ModelSelector({
 
   useEffect(() => {
     loadModels();
-  });
+  }, []);
 
   const loadModels = async () => {
     try {
