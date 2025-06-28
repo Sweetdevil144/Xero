@@ -132,7 +132,7 @@ app.use("/api/users", userRoutes);
 // Root endpoint
 app.get("/", (req, res) => {
   res.json({
-    message: "CatGPT API",
+    message: "Xero API",
     version: "1.0.0",
     status: "running",
     documentation: "/docs",

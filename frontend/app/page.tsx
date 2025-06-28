@@ -18,7 +18,7 @@ export default async function HomePage() {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-2">
               <MessageSquare className="h-8 w-8 text-black" />
-              <span className="text-xl font-semibold text-black">CatGPT</span>
+              <span className="text-xl font-semibold text-black">Xero</span>
             </div>
             <SignInButton mode="modal">
               <button className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors font-medium">

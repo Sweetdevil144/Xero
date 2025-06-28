@@ -415,7 +415,7 @@ class AIService {
         user_id: userId,
         metadata: {
           timestamp: new Date().toISOString(),
-          app_id: "chatgpt-clone",
+          app_id: "xero",
         },
       });
 

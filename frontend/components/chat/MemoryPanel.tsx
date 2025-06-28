@@ -113,7 +113,7 @@ export default function MemoryPanel({ isOpen, onClose }: MemoryPanelProps) {
         <div className="flex-1 overflow-y-auto p-6">
           <div className="mb-4">
             <p className="text-sm text-gray-600 mb-4">
-              CatGPT remembers important details from your conversations to
+              Xero remembers important details from your conversations to
               provide more personalized responses. These memories help maintain
               context across different chat sessions.
             </p>
@@ -139,7 +139,7 @@ export default function MemoryPanel({ isOpen, onClose }: MemoryPanelProps) {
               <Brain className="h-12 w-12 mx-auto mb-3 text-gray-300" />
               <p className="text-gray-500 mb-2">No memories yet</p>
               <p className="text-sm text-gray-400">
-                Start chatting with CatGPT to build up your conversation memory
+                Start chatting with Xero to build up your conversation memory
               </p>
             </div>
           ) : (

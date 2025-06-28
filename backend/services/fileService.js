@@ -61,7 +61,7 @@ testCloudinaryConnection();
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: "chatgpt-clone",
+    folder: "xero",
     allowed_formats: [
       "jpg",
       "jpeg",
@@ -123,7 +123,7 @@ class FileService {
         const nameWithoutExt = filename.replace(/\.[^/.]+$/, "");
 
         const uploadOptions = {
-          folder: "chatgpt-clone",
+          folder: "xero",
           public_id: `${Date.now()}_${nameWithoutExt}`,
           resource_type: "auto",
           access_mode: "public",
@@ -327,7 +327,7 @@ class FileService {
           responseType: "arraybuffer",
           timeout: 30000,
           headers: {
-            "User-Agent": "ChatGPT-Clone-Server/1.0",
+            "User-Agent": "Xero/1.0",
           },
           maxRedirects: 5,
           validateStatus: function (status) {
@@ -367,7 +367,7 @@ class FileService {
         resource_type: "raw",
         type: "upload",
         max_results: 10,
-        prefix: "chatgpt-clone/",
+        prefix: "xero/",
       });
 
       logger.info(
@@ -443,7 +443,7 @@ class FileService {
         responseType: "arraybuffer",
         timeout: 30000,
         headers: {
-          "User-Agent": "ChatGPT-Clone-Server/1.0",
+          "User-Agent": "Xero/1.0",
         },
         maxRedirects: 5,
         validateStatus: function (status) {
@@ -479,7 +479,7 @@ class FileService {
             responseType: "arraybuffer",
             timeout: 30000,
             headers: {
-              "User-Agent": "ChatGPT-Clone-Server/1.0",
+              "User-Agent": "Xero/1.0",
             },
             maxRedirects: 5,
           });
@@ -534,7 +534,7 @@ class FileService {
           responseType: "arraybuffer",
           timeout: 30000,
           headers: {
-            "User-Agent": "ChatGPT-Clone-Server/1.0",
+            "User-Agent": "Xero/1.0",
           },
           maxRedirects: 5,
         });

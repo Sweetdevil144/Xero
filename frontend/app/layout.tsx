@@ -5,8 +5,8 @@ import { Toaster } from "sonner";
 import { ThemeProvider } from "@/lib/theme-context";
 
 export const metadata: Metadata = {
-  title: "CatGPT",
-  description: "A pixel-perfect ChatGPT clone",
+  title: "Xero",
+  description: "Xero is a chatbot for your Daily Tasks",
 };
 
 export default function RootLayout({

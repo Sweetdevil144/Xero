@@ -114,7 +114,7 @@ export default function ChatArea({
               </div>
               <div>
                 <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  ChatGPT
+                  Xero
                 </h1>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   {getModelDisplayName(selectedModel)}
@@ -235,7 +235,7 @@ export default function ChatArea({
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Message ChatGPT..."
+                  placeholder="Message Xero..."
                   className="w-full resize-none border border-gray-300 dark:border-gray-600 rounded-2xl pl-12 pr-16 py-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-lg max-h-[200px] bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                   rows={1}
                   disabled={isLoading}
@@ -272,7 +272,7 @@ export default function ChatArea({
             </form>
 
             <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-3">
-              ChatGPT can make mistakes. Check important info.
+              Xero can make mistakes. Check important info.
             </p>
           </div>
         </div>

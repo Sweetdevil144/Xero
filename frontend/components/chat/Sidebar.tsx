@@ -178,7 +178,7 @@ export default function Sidebar({
             <div className="flex items-center justify-between p-4 border-b border-gray-700 dark:border-gray-600">
               <div className="flex items-center space-x-2">
                 <MessageSquare className="h-6 w-6" />
-                <span className="font-semibold">ChatGPT Clone</span>
+                <span className="font-semibold">Xero Clone</span>
               </div>
               <button
                 onClick={onToggle}
