@@ -134,6 +134,15 @@ class AIService {
               options.userId
             );
 
+            // Trim messages to fit within model's context window
+            const modelMaxTokens = this.getModelMaxTokens(options.model);
+            const reservedTokens = options.maxTokens || 8000;
+            const availableTokens = modelMaxTokens - reservedTokens;
+            
+            const trimmedMessages = this.trimContextWindow(messagesWithMemory, availableTokens);
+            
+            console.log(`Trimmed messages from ${messagesWithMemory.length} to ${trimmedMessages.length} for model ${options.model} (max tokens: ${modelMaxTokens})`);
+
             // Use custom API key if provided, otherwise use default
             const clientToUse = this.getClientWithCustomKey(
               provider,
@@ -142,7 +151,7 @@ class AIService {
 
             const result = await generateText({
               model: clientToUse(provider.models[options.model]),
-              messages: messagesWithMemory,
+              messages: trimmedMessages,
               temperature: options.temperature || 0.7,
               maxTokens: options.maxTokens || 1000,
             });
@@ -193,6 +202,14 @@ class AIService {
           options.userId
         );
 
+        // Trim messages for fallback model
+        const fallbackModel = Object.keys(provider.models)[0] || "gpt-3.5-turbo";
+        const modelMaxTokens = this.getModelMaxTokens(fallbackModel);
+        const reservedTokens = options.maxTokens || 1000;
+        const availableTokens = modelMaxTokens - reservedTokens;
+        
+        const trimmedMessages = this.trimContextWindow(messagesWithMemory, availableTokens);
+
         // Use custom API key if provided, otherwise use default
         const clientToUse = this.getClientWithCustomKey(
           provider,
@@ -201,7 +218,7 @@ class AIService {
 
         const result = await generateText({
           model: clientToUse(provider.defaultModel),
-          messages: messagesWithMemory,
+          messages: trimmedMessages,
           temperature: options.temperature || 0.7,
           maxTokens: options.maxTokens || 1000,
         });
@@ -253,6 +270,15 @@ class AIService {
               options.userId
             );
 
+            // Trim messages to fit within model's context window
+            const modelMaxTokens = this.getModelMaxTokens(options.model);
+            const reservedTokens = options.maxTokens || 1000; // Reserve tokens for response
+            const availableTokens = modelMaxTokens - reservedTokens;
+            
+            const trimmedMessages = this.trimContextWindow(messagesWithMemory, availableTokens);
+            
+            console.log(`Trimmed messages from ${messagesWithMemory.length} to ${trimmedMessages.length} for model ${options.model} (max tokens: ${modelMaxTokens})`);
+
             // Use custom API key if provided, otherwise use default
             const clientToUse = this.getClientWithCustomKey(
               provider,
@@ -261,7 +287,7 @@ class AIService {
 
             const result = await streamText({
               model: clientToUse(provider.models[options.model]),
-              messages: messagesWithMemory,
+              messages: trimmedMessages,
               temperature: options.temperature || 0.7,
               maxTokens: options.maxTokens || 1000,
             });
@@ -314,6 +340,16 @@ class AIService {
           options.userId
         );
 
+        // Trim messages for fallback model
+        const fallbackModel = Object.keys(provider.models)[0] || "gpt-3.5-turbo";
+        const modelMaxTokens = this.getModelMaxTokens(fallbackModel);
+        const reservedTokens = options.maxTokens || 1000;
+        const availableTokens = modelMaxTokens - reservedTokens;
+        
+        const trimmedMessages = this.trimContextWindow(messagesWithMemory, availableTokens);
+        
+        console.log(`Trimmed messages from ${messagesWithMemory.length} to ${trimmedMessages.length} for fallback model ${fallbackModel} (max tokens: ${modelMaxTokens})`);
+
         // Use custom API key if provided, otherwise use default
         const clientToUse = this.getClientWithCustomKey(
           provider,
@@ -322,7 +358,7 @@ class AIService {
 
         const result = await streamText({
           model: clientToUse(provider.defaultModel),
-          messages: messagesWithMemory,
+          messages: trimmedMessages,
           temperature: options.temperature || 0.7,
           maxTokens: options.maxTokens || 1000,
         });
@@ -516,6 +552,10 @@ class AIService {
   }
 
   trimContextWindow(messages, maxTokens = 4000) {
+    if (!messages || messages.length === 0) {
+      return messages;
+    }
+
     let totalTokens = 0;
     const trimmedMessages = [];
 
@@ -527,25 +567,37 @@ class AIService {
 
     // Add system messages first
     for (const msg of systemMessages) {
-      const tokens = this.calculateTokens(msg.content);
+      const tokens = this.calculateTokens(this.extractTextContent(msg.content));
       totalTokens += tokens;
       trimmedMessages.push(msg);
     }
 
-    // Add conversation messages from most recent, within token limit
-    for (let i = conversationMessages.length - 1; i >= 0; i--) {
-      const tokens = this.calculateTokens(conversationMessages[i].content);
-      if (
-        totalTokens + tokens > maxTokens &&
-        trimmedMessages.length > systemMessages.length
-      ) {
+    // If no conversation messages, return system messages
+    if (conversationMessages.length === 0) {
+      return trimmedMessages;
+    }
+
+    // Always include the most recent message, even if it exceeds token limit
+    const mostRecentMessage = conversationMessages[conversationMessages.length - 1];
+    const mostRecentTokens = this.calculateTokens(this.extractTextContent(mostRecentMessage.content));
+    trimmedMessages.push(mostRecentMessage);
+    totalTokens += mostRecentTokens;
+
+    // Add older conversation messages from most recent, within token limit
+    for (let i = conversationMessages.length - 2; i >= 0; i--) {
+      const tokens = this.calculateTokens(this.extractTextContent(conversationMessages[i].content));
+      if (totalTokens + tokens > maxTokens) {
         break;
       }
       totalTokens += tokens;
-      trimmedMessages.unshift(conversationMessages[i]);
+      trimmedMessages.splice(-1, 0, conversationMessages[i]); // Insert before the most recent message
     }
 
-    return trimmedMessages;
+    // Maintain chronological order
+    const systemMsgs = trimmedMessages.filter(msg => msg.role === "system");
+    const otherMsgs = trimmedMessages.filter(msg => msg.role !== "system");
+    
+    return [...systemMsgs, ...otherMsgs];
   }
 
   async getAvailableModels() {
