@@ -135,7 +135,7 @@ export default function ChatArea({
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto custom-scrollbar">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full px-4">
             <div className="text-center max-w-2xl mx-auto">
@@ -259,7 +259,7 @@ export default function ChatArea({
                     (!inputValue.trim() && attachedFiles.length === 0) ||
                     isLoading
                   }
-                  className="absolute right-3 bottom-3 w-8 h-8 bg-black dark:bg-white text-white dark:text-black rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+                  className="absolute right-5 bottom-3 w-8 h-8 bg-black dark:bg-white text-white dark:text-black rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
                   title="Send message"
                 >
                   {isLoading ? (
