@@ -1,6 +1,4 @@
-# CatGPT - Advanced ChatGPT Clone
-
-A pixel-perfect, full-stack ChatGPT clone built with modern technologies, featuring multiple AI models, file uploads, conversation memory, and real-time streaming responses.
+# Xero
 
 **NOTE** : AUTOMATION IS THE KEY. ALL DOCUMENTATIONS ARE WRITTEN BY AI. Comments are also written by AI.
 
