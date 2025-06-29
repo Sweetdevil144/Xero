@@ -161,7 +161,7 @@ export default function ModelSelector({
   onModelChange,
   disabled,
 }: ModelSelectorProps) {
-  const { getToken } = useAuth();
+  const { getToken, isLoaded, isSignedIn } = useAuth();
   const [models, setModels] = useState<Model[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -169,8 +169,12 @@ export default function ModelSelector({
   const [pendingModel, setPendingModel] = useState<Model | null>(null);
 
   useEffect(() => {
-    loadModels();
-  }, []);
+    if (isLoaded && isSignedIn) {
+      loadModels();
+    } else if (isLoaded && !isSignedIn) {
+      setIsLoading(false);
+    }
+  }, [isLoaded, isSignedIn]);
 
   const loadModels = async () => {
     try {

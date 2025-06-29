@@ -27,7 +27,7 @@ export interface Message {
 }
 
 export default function ChatInterface() {
-  const { getToken } = useAuth();
+  const { getToken, isLoaded, isSignedIn } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversation, setCurrentConversation] =
     useState<Conversation | null>(null);
@@ -37,10 +37,11 @@ export default function ChatInterface() {
   const [selectedModel, setSelectedModel] = useState("gemini-1.5-flash");
   const [attachedFiles, setAttachedFiles] = useState<UploadedFile[]>([]);
 
-  // Load conversations on mount
   useEffect(() => {
-    loadConversations();
-  }, []);
+    if (isLoaded && isSignedIn) {
+      loadConversations();
+    }
+  }, [isLoaded, isSignedIn]);
 
   const loadConversations = async () => {
     try {
@@ -403,30 +404,41 @@ export default function ChatInterface() {
 
   return (
     <div className="flex h-screen bg-white dark:bg-gray-900">
-      <Sidebar
-        conversations={conversations}
-        currentConversation={currentConversation}
-        onNewConversation={() => createNewConversation()}
-        onSelectConversation={selectConversation}
-        onDeleteConversation={deleteConversation}
-        isOpen={sidebarOpen}
-        onToggle={() => setSidebarOpen(!sidebarOpen)}
-      />
+      {!isLoaded ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white mx-auto"></div>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+          </div>
+        </div>
+      ) : (
+        <>
+          <Sidebar
+            conversations={conversations}
+            currentConversation={currentConversation}
+            onNewConversation={() => createNewConversation()}
+            onSelectConversation={selectConversation}
+            onDeleteConversation={deleteConversation}
+            isOpen={sidebarOpen}
+            onToggle={() => setSidebarOpen(!sidebarOpen)}
+          />
 
-      <ChatArea
-        currentConversation={currentConversation || ({} as Conversation)}
-        messages={messages}
-        onSendMessage={sendMessage}
-        onEditMessage={editMessage}
-        isLoading={isLoading}
-        sidebarOpen={sidebarOpen}
-        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-        selectedModel={selectedModel}
-        onModelChange={setSelectedModel}
-        attachedFiles={attachedFiles}
-        onFileUploaded={handleFileUploaded}
-        onRemoveAttachment={handleRemoveAttachment}
-      />
+          <ChatArea
+            currentConversation={currentConversation || ({} as Conversation)}
+            messages={messages}
+            onSendMessage={sendMessage}
+            onEditMessage={editMessage}
+            isLoading={isLoading}
+            sidebarOpen={sidebarOpen}
+            onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+            selectedModel={selectedModel}
+            onModelChange={setSelectedModel}
+            attachedFiles={attachedFiles}
+            onFileUploaded={handleFileUploaded}
+            onRemoveAttachment={handleRemoveAttachment}
+          />
+        </>
+      )}
     </div>
   );
 }

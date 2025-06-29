@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
 import { Copy, Check, User, Bot, Edit2, X, Save } from "lucide-react";
 import { Message } from "./ChatInterface";
@@ -88,12 +87,10 @@ export default function MessageBubble({
           >
             {isUser ? (
               user?.imageUrl ? (
-                <Image
+                <img
                   src={user.imageUrl}
                   alt="User"
                   className="w-8 h-8 rounded-full"
-                  width={32}
-                  height={32}
                 />
               ) : (
                 <User className="h-4 w-4" />

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { X } from "lucide-react";
 import { UploadedFile, fileService } from "@/lib/file-service";
 
@@ -61,12 +60,10 @@ export default function FileAttachment({
       {/* Preview */}
       {isImage && !imageError ? (
         <div className="aspect-video bg-gray-100 dark:bg-gray-800 relative">
-          <Image
+          <img
             src={file.url}
             alt={file.originalName}
             className="w-full h-full object-cover"
-            width={100}
-            height={100}
             onError={() => setImageError(true)}
           />
         </div>

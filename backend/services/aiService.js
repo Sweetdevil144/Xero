@@ -372,11 +372,14 @@ class AIService {
         return messages;
       }
 
+      const textContent = this.extractTextContent(lastUserMessage.content);
+
+      if (!textContent || textContent.trim().length === 0) {
+        return messages;
+      }
+
       // Retrieve relevant memories from Mem0
-      const memories = await this.retrieveMemories(
-        userId,
-        lastUserMessage.content
-      );
+      const memories = await this.retrieveMemories(userId, textContent);
 
       if (memories && memories.length > 0) {
         // Add memory context as a system message
@@ -395,14 +398,33 @@ class AIService {
     }
   }
 
+  extractTextContent(content) {
+    if (typeof content === "string") {
+      return content;
+    }
+
+    if (Array.isArray(content)) {
+      const textParts = content
+        .filter((part) => part.type === "text")
+        .map((part) => part.text)
+        .join(" ");
+      return textParts;
+    }
+
+    return "";
+  }
+
   async storeMemory(messages, response, userId) {
     try {
       if (!this.mem0Client || !userId) {
         return;
       }
 
-      // Prepare conversation for memory storage
-      const conversationMessages = [...messages];
+      const conversationMessages = messages.map((msg) => ({
+        role: msg.role,
+        content: this.extractTextContent(msg.content),
+      }));
+
       if (response) {
         conversationMessages.push({
           role: "assistant",
@@ -648,13 +670,11 @@ class AIService {
     return provider.client;
   }
 
-  // NEW: Convert file buffers to multimodal message content
   addFileBuffersToMessages(messages, fileBuffers) {
     if (!fileBuffers || fileBuffers.length === 0) {
       return messages;
     }
 
-    // Find the last user message and add file content to it
     const processedMessages = [...messages];
     const lastUserMessageIndex = processedMessages
       .map((m) => m.role)
@@ -663,10 +683,8 @@ class AIService {
     if (lastUserMessageIndex !== -1) {
       const lastUserMessage = processedMessages[lastUserMessageIndex];
 
-      // Convert to multimodal format
       const content = [{ type: "text", text: lastUserMessage.content }];
 
-      // Add file buffers as base64 images/documents
       for (const fileBuffer of fileBuffers) {
         if (fileBuffer.mimetype.startsWith("image/")) {
           content.push({
@@ -675,10 +693,8 @@ class AIService {
             mimeType: fileBuffer.mimetype,
           });
         }
-        // For other file types, they're already processed as text content
       }
 
-      // Update the message with multimodal content
       processedMessages[lastUserMessageIndex] = {
         ...lastUserMessage,
         content: content,

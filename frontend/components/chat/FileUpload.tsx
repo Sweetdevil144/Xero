@@ -127,7 +127,7 @@ export default function FileUpload({
               className="hidden"
               onChange={handleFileSelect}
               disabled={isUploading}
-              accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.csv,.xlsx,.ppt,.pptx,.zip,.rar"
+              accept="image/*,video/*,audio/*,.pdf,.doc,.txt,.csv,.xlsx,.ppt,.pptx,.zip,.rar"
             />
 
             {isUploading ? (

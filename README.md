@@ -220,7 +220,7 @@ Configure available AI models in backend services:
 ### File Upload Limits
 
 - Maximum file size: 10MB
-- Supported formats: PDF, JPG, PNG, GIF, DOC, DOCX
+- Supported formats: PDF, JPG, PNG, GIF
 - Cloudinary transformations for optimization
 
 ### Database Indexing
