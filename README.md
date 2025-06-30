@@ -33,9 +33,6 @@
 
 - **Clerk Integration**: Secure authentication with social login
 - **JWT Tokens**: Stateless authentication
-- **Role-based Access**: Subscription tiers (free, pro, enterprise)
-- **Data Privacy**: Encrypted data transmission and storage
-- **Rate Limiting**: API protection and abuse prevention
 
 ### 🎨 User Interface
 
